@@ -110,3 +110,15 @@ pdf.to_csv("lightcast_cleaned.csv", index=False)
 print("Data Cleaning Complete. Rows retained:", len(pdf))
 
 ```
+
+```{python}
+#Histogram of Salary Distribution
+
+fig = px.histogram(df.toPandas(), x="SALARY", nbins=50, title="Salary Distribution")
+fig.update_layout(bargap=0.1)
+
+
+
+
+
+```
