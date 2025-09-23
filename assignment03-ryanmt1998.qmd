@@ -91,7 +91,6 @@ df= df.withColumn("Average_Salary", (col("SALARY_FROM") + col("SALARY_TO")) / 2)
 
 
 export_cols = [
-    "EMPLOYMENT_TYPE_NAME",
     "EDUCATION_LEVELS_NAME",
     "REMOTE_TYPE_NAME",
     "MAX_YEARS_EXPERIENCE",
@@ -114,6 +113,8 @@ print("Data Cleaning Complete. Rows retained:", len(pdf))
 
 ## 2. Salary Distribution by Industry and Employment Type
 
+## Salary Distribution by Employment Type
+
 
 ```{python}
 import pandas as pd
@@ -121,8 +122,10 @@ import pandas as pd
 
 pdf = df.filter(df["SALARY"] > 0).select("EMPLOYMENT_TYPE_NAME", "SALARY").toPandas()
 import re
-pdf["EMPLOYMENT_TYPE_NAME"] = pdf["EMPLOYMENT_TYPE_NAME"].apply(lambda x: re.sub(r"[^\x00-\x7F]+", "", x) if isinstance(x, str) else "")
-
+pdf["EMPLOYMENT_TYPE_NAME"] = pdf["EMPLOYMENT_TYPE_NAME"].apply(
+    lambda x: re.sub(r"[^\x00-\x7F]+", "", str(x)).strip() if pd.notnull(x) else ""
+)
+pdf["SALARY"] = pdf["SALARY"] / 1000
 pdf = pdf[pdf["EMPLOYMENT_TYPE_NAME"] != ""]
 
 median_salaries = pdf.groupby("EMPLOYMENT_TYPE_NAME")["SALARY"].median()
@@ -148,11 +151,11 @@ fig = px.box(
 fig.update_layout(
     title=dict(
         text="Salary Distribution by Employment Type",
-        font=dict(size=30, family="Arial", color="black", weight = "bold")
+        font=dict(size=16, family="Helvetica", color="black", weight = "bold")
     ),
     
     xaxis=dict(
-        title=dict(text="Employment Type", font=dict(size=14, family = "Arial", color = "black", weight = "bold")),
+        title=dict(text="Employment Type", font=dict(size=14, family = "Helvetica", color = "black", weight = "bold")),
         tickangle=0, 
         tickfont=dict(size=12, family = "Arial", color = "black", weight = "bold"),
         showline = True,
@@ -163,10 +166,10 @@ fig.update_layout(
         categoryorder="array",
         categoryarray=sorted_employment_types.tolist()
     ),
-    yaxis=dict(title=dict(text="Salary (K $)", font=dict(size=14, family = "Arial", color = "black", weight = "bold")),
+    yaxis=dict(title=dict(text="Salary (K $)", font=dict(size=14, family = "Helvetica", color = "black", weight = "bold")),
         tickvals=[0, 50000, 100000, 150000, 200000, 250000, 300000, 350000, 400000, 450000, 500000],
         ticktext=["0", "50K", "100K", "150K", "200K", "250K", "300K", "350K", "400K", "450K", "500K"],
-        tickfont=dict(size=12, family = "Arial", color = "black", weight = "bold"),
+        tickfont=dict(size=12, family = "Helvetica", color = "black", weight = "bold"),
         showline = True,
         linewidth=2,
         linecolor="black",
@@ -175,7 +178,7 @@ fig.update_layout(
         gridcolor="lightgray",
         gridwidth=0.5,
     ),
-    font=dict(family="Arial", size = 12, color = "black"),
+    font=dict(family="Helvetica", size = 12, color = "black"),
     boxgap=0.7,
     plot_bgcolor="white",
     paper_bgcolor="white",
@@ -194,18 +197,153 @@ fig.write_image("output/Q1.svg", width=850, height=500, scale=1)
 
 ``` 
 
+## Salary Distribution by Industry
 ```{python}
-print("Before cleaning:", pdf["EMPLOYMENT_TYPE_NAME"].unique())
-print("After cleaning:", pdf["EMPLOYMENT_TYPE_NAME"].unique())
+import pandas as pd
+import re
+import plotly.express as px
 
-full_time_salaries = pdf[pdf["EMPLOYMENT_TYPE_NAME"] == "Full-time (> 32 hours)"]["SALARY"]
-print(full_time_salaries.describe())
+pdf = df.filter(df["SALARY"] > 0).select("NAICS2_NAME", "SALARY").toPandas()
+
+pdf["NAICS2_NAME"] = pdf["NAICS2_NAME"].apply(
+    lambda x: re.sub(r"[^\x00-\x7F]+", "", str(x)).strip() if pd.notnull(x) else ""
+)
+pdf["SALARY"] = pdf["SALARY"] / 1000
+pdf = pdf[pdf["NAICS2_NAME"] != ""]
+
+median_salaries = pdf.groupby("NAICS2_NAME")["SALARY"].median()
+sorted_industries = median_salaries.sort_values(ascending=False).index
+
+pdf["NAICS2_NAME"] = pd.Categorical(
+    pdf["NAICS2_NAME"],
+    categories=sorted_industries,
+    ordered=True
+)
+
+fig = px.box(
+    pdf,
+    x="NAICS2_NAME",
+    y="SALARY",
+    title="Salary Distribution by Industry",
+    color_discrete_sequence=["#EF553B"],  # bright red for boxes
+    boxmode="group",
+    points="all",
+)
+
+fig.update_layout(
+    title=dict(
+        text="Salary Distribution by Industry",
+        font=dict(size=30, family="Arial", color="#990000", weight="bold")  # dark red title
+    ),
+    xaxis=dict(
+        title=dict(text="Industry", font=dict(size=14, family="Arial", color="#B22222", weight="bold")),  # firebrick red
+        tickangle=45,
+        tickfont=dict(size=12, family="Arial", color="#B22222", weight="bold"),
+        showline=True,
+        linewidth=2,
+        linecolor="#B22222",
+        mirror=True,
+        showgrid=False,
+        categoryorder="array",
+        categoryarray=sorted_industries.tolist()
+    ),
+    yaxis=dict(
+        title=dict(text="Salary (K $)", font=dict(size=14, family="Arial", color="#800000", weight="bold")),  # maroon
+        tickvals=[100000, 200000, 300000, 400000, 500000],
+        ticktext=["100K", "200K", "300K", "400K", "500K"],
+        tickfont=dict(size=12, family="Arial", color="#800000", weight="bold"),
+        showline=True,
+        linewidth=2,
+        linecolor="#800000",
+        mirror=True,
+        showgrid=False,
+        gridcolor="#F5B7B1",
+        gridwidth=0.5,
+    ),
+    font=dict(family="Arial", size=12, color="#800000"),
+    boxgap=0.7,
+    plot_bgcolor="#FFF0F0",
+    paper_bgcolor="#FFF5F5",
+    showlegend=False,
+    height=900,
+    width=1100,
+)
+
+fig.show()
+fig.write_html("output/Q2.html")
+fig.write_image("output/Q2.svg", width=1100, height=900, scale=1)
+
+```
+
+
+
+## Salary Analysis by ONET Occupation Type (Bubble Chart)
+
+```{python}
+
+df.createOrReplaceTempView("Job_Postings")
 
 ```
 
 ```{python}
-
-full_time_salaries = pdf[pdf["EMPLOYMENT_TYPE_NAME"] == "Full-time (> 32 hours)"]["SALARY"]
-print(full_time_salaries.describe())
+salary_pd.head()
 
 ```
+```{python}
+
+salary_analysis = spark.sql("""
+    Select
+        TITLE_NAME AS ONET_NAME,
+        PERCENTILE(SALARY, 0.5) AS Median_Salary,
+        COUNT(*) AS Job_Postings
+    FROM Job_Postings
+    GROUP BY TITLE_NAME
+    ORDER BY Job_Postings DESC
+    LIMIT 10
+""")
+
+salary_pd = salary_analysis.toPandas()
+salary_pd.head()
+
+import plotly.express as px
+
+fig = px.scatter(
+    salary_pd,
+    x = "ONET_NAME",
+    y="Median_Salary",
+    size="Job_Postings",
+    title="Median Salary by ONET Occupation Type (Bubble Chart)",
+    labels = {"ONET_NAME": "ONET Occupation", "Median_Salary": "Median Salary", "Job_Postings": "NUmber of Job Postings"
+    },
+    hover_name = "ONET_NAME",
+    size_max = 60,
+    width=1000,
+    height=600,
+    color="Job_Postings",
+    color_continuous_scale="Plasma"
+)
+fig.update_layout(
+  font_family="Arial",
+  font_size = 14,
+  title_font_size=25,
+  xaxis_title = "ONET Occupation",
+  yaxis_title= "Median Salary",
+  plot_bgcolor="white",
+  xaxis=dict(
+    tickangle=-45,
+    showline=True,
+    linecolor="black"
+  ),
+  yaxis=dict(
+    showline=True,
+    linecolor="black"
+  )
+)
+
+
+fig.show()
+fig.write_html("output/Q3.html")
+fig.write_image("output/Q3.svg", width=1100, height=900, scale=1)
+
+```
+
