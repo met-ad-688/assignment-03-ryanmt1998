@@ -140,12 +140,12 @@ pdf["EMPLOYMENT_TYPE_NAME"] = pd.Categorical(
 )
 fig = px.box(
     pdf,
-    x = "EMPLOYMENT_TYPE_NAME",
-    y = "SALARY",
-    title = "Salary Distribution by Employment Type",
-    color_discrete_sequence=["black"],
-    boxmode = "group",
-    points = "all",
+    x="EMPLOYMENT_TYPE_NAME",
+    y="SALARY",
+    title="Salary Distribution by Employment Type",
+    color_discrete_sequence=["#1f77b4"],  
+    boxmode="group",
+    points="all",
 )
 
 fig.update_layout(
@@ -166,17 +166,18 @@ fig.update_layout(
         categoryorder="array",
         categoryarray=sorted_employment_types.tolist()
     ),
-    yaxis=dict(title=dict(text="Salary (K $)", font=dict(size=14, family = "Helvetica", color = "black", weight = "bold")),
-        tickvals=[0, 50000, 100000, 150000, 200000, 250000, 300000, 350000, 400000, 450000, 500000],
-        ticktext=["0", "50K", "100K", "150K", "200K", "250K", "300K", "350K", "400K", "450K", "500K"],
-        tickfont=dict(size=12, family = "Helvetica", color = "black", weight = "bold"),
-        showline = True,
-        linewidth=2,
-        linecolor="black",
-        mirror=True,
-        showgrid=False,
-        gridcolor="lightgray",
-        gridwidth=0.5,
+    yaxis=dict(
+    title=dict(text="Salary (K $)", font=dict(size=14, family="Helvetica", color="black", weight="bold")),
+    tickvals=[0, 50, 100, 150, 200, 250, 300, 350, 400, 450, 500],
+    ticktext=["0", "50K", "100K", "150K", "200K", "250K", "300K", "350K", "400K", "450K", "500K"],
+    tickfont=dict(size=12, family="Helvetica", color="black", weight="bold"),
+    showline=True,
+    linewidth=2,
+    linecolor="black",
+    mirror=True,
+    showgrid=False,
+    gridcolor="lightgray",
+    gridwidth=0.5,
     ),
     font=dict(family="Helvetica", size = 12, color = "black"),
     boxgap=0.7,
@@ -286,10 +287,6 @@ df.createOrReplaceTempView("Job_Postings")
 ```
 
 ```{python}
-salary_pd.head()
-
-```
-```{python}
 
 salary_analysis = spark.sql("""
     Select
@@ -347,3 +344,98 @@ fig.write_image("output/Q3.svg", width=1100, height=900, scale=1)
 
 ```
 
+## Salary by Education Level
+
+## Scatter Plot
+
+```{python}
+
+lower_deg = ["Bachelor's", "Associate's", "GED", "No Education Listed", "High School"]
+higher_deg = ["Master's Degree", "PHD or professional degree"]
+
+df = df.withColumn(
+  "EDU_GROUP",
+  when(col("EDUCATION_LEVELS_NAME").rlike("|".join([f"(?i){deg}" for deg in lower_deg])), "Bachelor's or lower")
+  .when(col("EDUCATION_LEVELS_NAME").rlike("|".join([f"(?i){deg}" for deg in higher_deg])), "Master's or PHD")
+  .otherwise("Other")
+)
+df= df.withColumn("MAX_YEARS_EXPERIENCE", col("MAX_YEARS_EXPERIENCE").cast("float"))
+df= df.withColumn("AVERAGE_SALARY", col("AVERAGE_SALARY").cast("float"))
+
+
+df = df.filter(
+  col("MAX_YEARS_EXPERIENCE").isNotNull() &
+  col("AVERAGE_SALARY").isNotNull() &
+  (col("MAX_YEARS_EXPERIENCE") > 0) &
+  (col("AVERAGE_SALARY") > 0) 
+
+
+)
+
+df_filtered = df.filter(col("EDU_GROUP").isin("Bachelor's or lower", "Master's or PHD"))
+
+df_pd = df_filtered.toPandas()
+
+import numpy as np
+
+
+jitter_amount = 0.15  
+df_pd['MAX_YEARS_EXPERIENCE_JITTER'] = (
+    df_pd['MAX_YEARS_EXPERIENCE'] +
+    np.random.uniform(-jitter_amount, jitter_amount, len(df_pd))
+)
+
+
+fig1 = px.scatter(
+  df_pd,
+  x="MAX_YEARS_EXPERIENCE_JITTER",
+  y="AVERAGE_SALARY",
+  color = "EDU_GROUP",
+  hover_data=["LOT_V6_SPECIALIZED_OCCUPATION_NAME"],
+  title="<b>Experience vs Salary by Education Level</b>",
+  opacity=0.7,
+  color_discrete_sequence=["#636efa", "#FFC0CB"]
+
+)
+
+fig1.update_traces(marker=dict(size=7, line=dict(width=1, color="black")))
+
+fig1.update_layout(
+  plot_bgcolor="#f9f9f9",
+  paper_bgcolor="#FFF5DC",
+  font=dict(family="Segoe UI", size=14),
+  title_font=dict(size=22),
+  xaxis_title="Years of Experience",
+  yaxis_title="Average Salary (USD)",
+  legend_title="Education Group",
+  hoverlabel=dict(bgcolor="white", font_size=13, font_family="Arial"),
+  margin=dict(t=70,b=60, l=60, r=60),
+  xaxis=dict(
+    gridcolor="lightgrey",
+    tickmode='linear',
+    dtick=1
+  ),
+  yaxis=dict(gridcolor="lightgrey")
+)
+fig1.show()
+fig1.write_html("outputq_1a_Experience_vs_Salary_by_Education_Level.html")
+fig1.write_image("output/q_1a_Experience_vs_Salary_by_Education_Level.svg", width=1100, height=900, scale=1)
+
+
+
+
+
+
+
+
+```
+
+## Histogram
+```{python}
+
+
+
+
+
+
+```
