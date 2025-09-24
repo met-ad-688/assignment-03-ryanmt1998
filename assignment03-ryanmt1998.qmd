@@ -394,6 +394,8 @@ df_pd['MAX_YEARS_EXPERIENCE_JITTER'] = (
 
 ```
 ## Scatter Plot 1
+
+For individuals with a Bachelor's or lower, the average salary ranges from around 50k to 200k. People with greater job experience tend to earn a salary closer to 200k with each additional year of experience. For example, starting with 6 years of experience, salaries were consistently above 100k. A Bachelor's degree can earn you a well-paying job, but additional experience can earn you an even greater salary than someone with less experience.  
 ```{python}
 
 
@@ -437,6 +439,8 @@ fig1.write_image("output/q_1a_Experience_vs_Salary_by_Education_Level_Bachelors.
 
 
 ## Scatter Plot 2
+
+This graph emphasizes the benefits of having a Master's or PhD in addition to a Bachelor's degree. While the sample size may be smaller, the benefits of a Master's or PHD are apparent. There is a positive relationship between having this level of education and an increasing number of years of experience. Salaries appear to average around 150k a year, with the outliers below that decreasing each year. Comparing this to the scatter plot for groups with a Bachelor's degree or below, people with a Master's or PhD are expected to earn more, even with as little as 1 year of experience.
 
 ```{python}
 df_master = df_pd[df_pd["EDU_GROUP"]=="Master's or PHD"]
