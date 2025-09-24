@@ -125,7 +125,7 @@ import re
 pdf["EMPLOYMENT_TYPE_NAME"] = pdf["EMPLOYMENT_TYPE_NAME"].apply(
     lambda x: re.sub(r"[^\x00-\x7F]+", "", str(x)).strip() if pd.notnull(x) else ""
 )
-pdf["SALARY"] = pdf["SALARY"] / 1000
+
 pdf = pdf[pdf["EMPLOYMENT_TYPE_NAME"] != ""]
 
 median_salaries = pdf.groupby("EMPLOYMENT_TYPE_NAME")["SALARY"].median()
@@ -168,7 +168,7 @@ fig.update_layout(
     ),
     yaxis=dict(
     title=dict(text="Salary (K $)", font=dict(size=14, family="Helvetica", color="black", weight="bold")),
-    tickvals=[0, 50, 100, 150, 200, 250, 300, 350, 400, 450, 500],
+    tickvals=[0, 50000, 100000, 150000, 200000, 250000, 300000, 350000, 400000, 450000, 500000],
     ticktext=["0", "50K", "100K", "150K", "200K", "250K", "300K", "350K", "400K", "450K", "500K"],
     tickfont=dict(size=12, family="Helvetica", color="black", weight="bold"),
     showline=True,
@@ -209,7 +209,7 @@ pdf = df.filter(df["SALARY"] > 0).select("NAICS2_NAME", "SALARY").toPandas()
 pdf["NAICS2_NAME"] = pdf["NAICS2_NAME"].apply(
     lambda x: re.sub(r"[^\x00-\x7F]+", "", str(x)).strip() if pd.notnull(x) else ""
 )
-pdf["SALARY"] = pdf["SALARY"] / 1000
+
 pdf = pdf[pdf["NAICS2_NAME"] != ""]
 
 median_salaries = pdf.groupby("NAICS2_NAME")["SALARY"].median()
