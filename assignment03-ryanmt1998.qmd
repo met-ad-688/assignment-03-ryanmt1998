@@ -115,6 +115,7 @@ print("Data Cleaning Complete. Rows retained:", len(pdf))
 
 ## Salary Distribution by Employment Type
 
+The salary distribution by employment type graph emphasizes that full-time employment attracts higher salaries and has a broader range of payment. The part-time jobs appear to offer lower wages, but because of their few outliers, they represent more consistent salaries. The part-time/full-time mixed job has lower wages, similar to those in the part-time category, and outliers, such as the full-time category. The wages of full-time jobs demonstrate the benefits of an experienced job.
 
 ```{python}
 import pandas as pd
@@ -151,7 +152,7 @@ fig = px.box(
 fig.update_layout(
     title=dict(
         text="Salary Distribution by Employment Type",
-        font=dict(size=16, family="Helvetica", color="black", weight = "bold")
+        font=dict(size=20, family="Helvetica", color="black", weight = "bold")
     ),
     
     xaxis=dict(
@@ -196,9 +197,14 @@ fig.show()
 fig.write_html("output/Q1.html")
 fig.write_image("output/Q1.svg", width=850, height=500, scale=1)
 
-``` 
+
+```
+
+
 
 ## Salary Distribution by Industry
+
+The distribution plot displays the significant pay gap between certain sections of the job industry. The highest-paying jobs, which seem to pay around or over 200k, are in health, finance, and technology. The industries with the lowest salaries are mostly making around 50k, which includes jobs in the agricultural, retail, and food service industries.   
 ```{python}
 import pandas as pd
 import re
@@ -234,12 +240,12 @@ fig = px.box(
 fig.update_layout(
     title=dict(
         text="Salary Distribution by Industry",
-        font=dict(size=30, family="Arial", color="#990000", weight="bold")  # dark red title
+        font=dict(size=30, family="Georgia", color="#990000", weight="bold")  # dark red title
     ),
     xaxis=dict(
-        title=dict(text="Industry", font=dict(size=14, family="Arial", color="#B22222", weight="bold")),  # firebrick red
+        title=dict(text="Industry", font=dict(size=14, family="Georgia", color="#B22222", weight="bold")),  # firebrick red
         tickangle=45,
-        tickfont=dict(size=12, family="Arial", color="#B22222", weight="bold"),
+        tickfont=dict(size=12, family="Georgia", color="#B22222", weight="bold"),
         showline=True,
         linewidth=2,
         linecolor="#B22222",
@@ -249,10 +255,10 @@ fig.update_layout(
         categoryarray=sorted_industries.tolist()
     ),
     yaxis=dict(
-        title=dict(text="Salary (K $)", font=dict(size=14, family="Arial", color="#800000", weight="bold")),  # maroon
+        title=dict(text="Salary (K $)", font=dict(size=14, family="Georgia", color="#800000", weight="bold")),  # maroon
         tickvals=[100000, 200000, 300000, 400000, 500000],
         ticktext=["100K", "200K", "300K", "400K", "500K"],
-        tickfont=dict(size=12, family="Arial", color="#800000", weight="bold"),
+        tickfont=dict(size=12, family="Georgia", color="#800000", weight="bold"),
         showline=True,
         linewidth=2,
         linecolor="#800000",
@@ -261,7 +267,7 @@ fig.update_layout(
         gridcolor="#F5B7B1",
         gridwidth=0.5,
     ),
-    font=dict(family="Arial", size=12, color="#800000"),
+    font=dict(family="Georgia", size=12, color="#800000"),
     boxgap=0.7,
     plot_bgcolor="#FFF0F0",
     paper_bgcolor="#FFF5F5",
@@ -286,6 +292,8 @@ df.createOrReplaceTempView("Job_Postings")
 
 ```
 
+The salaries for occupations in the ONET taxonomy range from around 100k to 120k, with a few outliers being present. Occupations such as Data Governance Analysts and ERP Business Analysts offer good salaries but have smaller job markets, indicating that they have fewer job postings. On the other hand, Data Analysts have many more job postings, mostly because it is a much broader topic of study compared to the alternatives. The biggest takeaway is that more specialized jobs demand higher salaries, and data analysts have a strong grasp of this job market.
+
 ```{python}
 
 salary_analysis = spark.sql("""
@@ -293,7 +301,7 @@ salary_analysis = spark.sql("""
         TITLE_NAME AS ONET_NAME,
         PERCENTILE(SALARY, 0.5) AS Median_Salary,
         COUNT(*) AS Job_Postings
-    FROM Job_Postings
+    FROM job_Postings
     GROUP BY TITLE_NAME
     ORDER BY Job_Postings DESC
     LIMIT 10
@@ -310,17 +318,17 @@ fig = px.scatter(
     y="Median_Salary",
     size="Job_Postings",
     title="Median Salary by ONET Occupation Type (Bubble Chart)",
-    labels = {"ONET_NAME": "ONET Occupation", "Median_Salary": "Median Salary", "Job_Postings": "NUmber of Job Postings"
+    labels = {"ONET_NAME": "ONET Occupation", "Median_Salary": "Median Salary", "Job_Postings": "Number of Job Postings"
     },
     hover_name = "ONET_NAME",
     size_max = 60,
     width=1000,
     height=600,
     color="Job_Postings",
-    color_continuous_scale="Plasma"
+    color_continuous_scale="Jet"
 )
 fig.update_layout(
-  font_family="Arial",
+  font_family="Cambria",
   font_size = 14,
   title_font_size=25,
   xaxis_title = "ONET Occupation",
@@ -346,7 +354,6 @@ fig.write_image("output/Q3.svg", width=1100, height=900, scale=1)
 
 ## Salary by Education Level
 
-## Scatter Plot
 
 ```{python}
 
@@ -385,16 +392,21 @@ df_pd['MAX_YEARS_EXPERIENCE_JITTER'] = (
     np.random.uniform(-jitter_amount, jitter_amount, len(df_pd))
 )
 
+```
+## Scatter Plot 1
+```{python}
 
+
+df_bachelor = df_pd[df_pd["EDU_GROUP"]=="Bachelor's or lower"]
 fig1 = px.scatter(
-  df_pd,
+  df_bachelor,
   x="MAX_YEARS_EXPERIENCE_JITTER",
   y="AVERAGE_SALARY",
   color = "EDU_GROUP",
   hover_data=["LOT_V6_SPECIALIZED_OCCUPATION_NAME"],
   title="<b>Experience vs Salary by Education Level</b>",
   opacity=0.7,
-  color_discrete_sequence=["#636efa", "#FFC0CB"]
+  color_discrete_sequence=["#636efa"]
 
 )
 
@@ -418,10 +430,75 @@ fig1.update_layout(
   yaxis=dict(gridcolor="lightgrey")
 )
 fig1.show()
-fig1.write_html("outputq_1a_Experience_vs_Salary_by_Education_Level.html")
-fig1.write_image("output/q_1a_Experience_vs_Salary_by_Education_Level.svg", width=1100, height=900, scale=1)
+fig1.write_html("outputq_1a_Experience_vs_Salary_by_Education_Level_Bachelors.html")
+fig1.write_image("output/q_1a_Experience_vs_Salary_by_Education_Level_Bachelors.svg", width=1100, height=900, scale=1)
+
+```
 
 
+## Scatter Plot 2
+
+```{python}
+df_master = df_pd[df_pd["EDU_GROUP"]=="Master's or PHD"]
+fig2 = px.scatter(
+  df_master,
+  x="MAX_YEARS_EXPERIENCE_JITTER",
+  y="AVERAGE_SALARY",
+  color = "EDU_GROUP",
+  hover_data=["LOT_V6_SPECIALIZED_OCCUPATION_NAME"],
+  title="<b>Experience vs Salary by Education Level</b>",
+  opacity=0.7,
+  color_discrete_sequence=["#FFC0CB"]
+
+)
+
+fig2.update_traces(marker=dict(size=7, line=dict(width=1, color="black")))
+
+fig2.update_layout(
+  plot_bgcolor="#f9f9f9",
+  paper_bgcolor="#FFF5DC",
+  font=dict(family="Segoe UI", size=14),
+  title_font=dict(size=22),
+  xaxis_title="Years of Experience",
+  yaxis_title="Average Salary (USD)",
+  legend_title="Education Group",
+  hoverlabel=dict(bgcolor="white", font_size=13, font_family="Arial"),
+  margin=dict(t=70,b=60, l=60, r=60),
+  xaxis=dict(
+    gridcolor="lightgrey",
+    tickmode='linear',
+    dtick=1
+  ),
+  yaxis=dict(gridcolor="lightgrey")
+)
+fig2.show()
+fig2.write_html("outputq_1a_Experience_vs_Salary_by_Education_Level_Masters.html")
+fig2.write_image("output/q_1a_Experience_vs_Salary_by_Education_Level_Masters.svg", width=1100, height=900, scale=1)
+
+```
+
+
+
+
+
+## Histogram 1
+```{python}
+import seaborn as sns
+import matplotlib.pyplot as plt
+
+sns.histplot(data=df_pd[df_pd['EDU_GROUP'] == "Bachelor's or lower"],
+            x='AVERAGE_SALARY',
+            bins=30,
+            kde=True,
+            color='#FFFF00',
+            stat='density',
+            alpha=0.5)
+
+plt.title("Bachelor's or Lower Histogram")
+plt.xlabel('Average Salary (USD)')
+plt.ylabel('Density')
+plt.show()
+plt.savefig("output/Bachelors_or_Lower_Histogram.svg", bbox_inches='tight')
 
 
 
@@ -430,10 +507,257 @@ fig1.write_image("output/q_1a_Experience_vs_Salary_by_Education_Level.svg", widt
 
 ```
 
-## Histogram
+
+## Histogram 2
 ```{python}
+import seaborn as sns
+import matplotlib.pyplot as plt
+
+sns.histplot(data=df_pd[df_pd['EDU_GROUP'] == "Master's or PHD"],
+            x='AVERAGE_SALARY',
+            bins=30,
+            kde=True,
+            color='#636efa',
+            stat='density',
+            alpha=0.5)
+
+plt.title("Master's or PHD Histogram")
+plt.xlabel('Average Salary (USD)')
+plt.ylabel('Density')
+plt.show()
+plt.savefig("output/Masters_or_PHD_Histogram.svg", bbox_inches='tight')
+
+```
+
+## Salary by Remote Work Type
+
+```{python}
+from pyspark.sql.functions import when, col, trim
+
+df = df.withColumn("REMOTE_GROUP",
+    when(trim(col("REMOTE_TYPE_NAME")) == "Remote", "Remote")
+    .when(trim(col("REMOTE_TYPE_NAME")) == "Hybrid Remote", "Hybrid")
+    .when(trim(col("REMOTE_TYPE_NAME")) == "Not Remote", "Onsite")
+    .when(col("REMOTE_TYPE_NAME").isNull(), "Onsite")
+    .otherwise("Onsite")
+)
+
+df = df.filter(
+  col("MAX_YEARS_EXPERIENCE").isNotNull() &
+  col("AVERAGE_SALARY").isNotNull() &
+  (col("MAX_YEARS_EXPERIENCE") > 0) &
+  (col("AVERAGE_SALARY") > 0) 
+)
+
+df_pd = df.select(
+    "MAX_YEARS_EXPERIENCE", "Average_Salary",
+    "LOT_V6_SPECIALIZED_OCCUPATION_NAME", "REMOTE_GROUP"
+).toPandas()
+
+import numpy as np
 
 
+jitter_amount = 0.15  
+df_pd['MAX_YEARS_EXPERIENCE_JITTER'] = (
+    df_pd['MAX_YEARS_EXPERIENCE'] +
+    np.random.uniform(-jitter_amount, jitter_amount, len(df_pd))
+)
+
+```
+
+## Scatter Plot 1
+
+```{python}
+remote_df = df_pd[df_pd['REMOTE_GROUP'] == 'Remote']
+fig1 = px.scatter(
+  remote_df,
+  x="MAX_YEARS_EXPERIENCE_JITTER",
+  y="Average_Salary",
+  color = "REMOTE_GROUP",
+  hover_data=["LOT_V6_SPECIALIZED_OCCUPATION_NAME"],
+  title="<b>Experience vs Salary by Remote Work Type</b>",
+  opacity=0.7,
+  color_discrete_sequence=["#636efa"]
+
+)
+
+fig1.update_traces(marker=dict(size=7, line=dict(width=1, color="black")))
+
+fig1.update_layout(
+  plot_bgcolor="#f9f9f9",
+  paper_bgcolor="#FFF5DC",
+  font=dict(family="Segoe UI", size=14),
+  title_font=dict(size=22),
+  xaxis_title="Years of Experience",
+  yaxis_title="Average Salary (USD)",
+  legend_title="Remote Work Type",
+  hoverlabel=dict(bgcolor="white", font_size=13, font_family="Arial"),
+  margin=dict(t=70,b=60, l=60, r=60),
+  xaxis=dict(
+    gridcolor="lightgrey",
+    tickmode='linear',
+    dtick=1
+  ),
+  yaxis=dict(gridcolor="lightgrey")
+)
+fig1.show()
+fig1.write_html("output/Experience_vs_Salary_by_Remote_Work_Type.html")
+fig1.write_image("output/Experience_vs_Salary_by_Remote_Work_Type.svg", width=1100, height=900, scale=1)
+
+
+
+
+
+```
+
+## Scatter Plot 2
+
+```{python}
+hybrid_df = df_pd[df_pd['REMOTE_GROUP'] == 'Hybrid']
+fig2 = px.scatter(
+  hybrid_df,
+  x="MAX_YEARS_EXPERIENCE_JITTER",
+  y="Average_Salary",
+  color = "REMOTE_GROUP",
+  hover_data=["LOT_V6_SPECIALIZED_OCCUPATION_NAME"],
+  title="<b>Experience vs Salary by Remote Work Type</b>",
+  opacity=0.7,
+  color_discrete_sequence=["#00CC96"]
+
+)
+
+fig2.update_traces(marker=dict(size=7, line=dict(width=1, color="black")))
+
+fig2.update_layout(
+  plot_bgcolor="#f9f9f9",
+  paper_bgcolor="#FFF5DC",
+  font=dict(family="Segoe UI", size=14),
+  title_font=dict(size=22),
+  xaxis_title="Years of Experience",
+  yaxis_title="Average Salary (USD)",
+  legend_title="Remote Work Type",
+  hoverlabel=dict(bgcolor="white", font_size=13, font_family="Arial"),
+  margin=dict(t=70,b=60, l=60, r=60),
+  xaxis=dict(
+    gridcolor="lightgrey",
+    tickmode='linear',
+    dtick=1
+  ),
+  yaxis=dict(gridcolor="lightgrey")
+)
+fig2.show()
+fig2.write_html("output/Experience_vs_Salary_by_Remote_Work_Type_Hybrid.html")
+fig2.write_image("output/Experience_vs_Salary_by_Remote_Work_Type_Hybrid.svg", width=1100, height=900, scale=1)
+
+
+
+
+
+```
+
+## Scatter Plot 3
+
+```{python}
+onsite_df = df_pd[df_pd['REMOTE_GROUP'] == 'Onsite']
+fig3 = px.scatter(
+  onsite_df,
+  x="MAX_YEARS_EXPERIENCE_JITTER",
+  y="Average_Salary",
+  color = "REMOTE_GROUP",
+  hover_data=["LOT_V6_SPECIALIZED_OCCUPATION_NAME"],
+  title="<b>Experience vs Salary by Remote Work Type</b>",
+  opacity=0.7,
+  color_discrete_sequence=["#FFA500"]
+
+)
+
+fig3.update_traces(marker=dict(size=7, line=dict(width=1, color="black")))
+
+fig3.update_layout(
+  plot_bgcolor="#f9f9f9",
+  paper_bgcolor="#FFF5DC",
+  font=dict(family="Segoe UI", size=14),
+  title_font=dict(size=22),
+  xaxis_title="Years of Experience",
+  yaxis_title="Average Salary (USD)",
+  legend_title="Remote Work Type",
+  hoverlabel=dict(bgcolor="white", font_size=13, font_family="Arial"),
+  margin=dict(t=70,b=60, l=60, r=60),
+  xaxis=dict(
+    gridcolor="lightgrey",
+    tickmode='linear',
+    dtick=1
+  ),
+  yaxis=dict(gridcolor="lightgrey")
+)
+fig3.show()
+fig3.write_html("output/Experience_vs_Salary_by_Remote_Work_Type_Onsite.html")
+fig3.write_image("output/Experience_vs_Salary_by_Remote_Work_Type_Onsite.svg", width=1100, height=900, scale=1)
+
+
+
+
+
+```
+
+## Histogram 1
+
+```{python}
+import matplotlib.pyplot as plt
+
+remote_salaries = df_pd[df_pd['REMOTE_GROUP'] == 'Remote']['Average_Salary']
+
+plt.figure(figsize=(6, 4))
+plt.hist(remote_salaries, bins=15, color='#636efa', alpha=0.7, edgecolor='black')
+plt.title(' Remote Salary Distribution')
+plt.xlabel('Average Salary (USD)')
+plt.ylabel('Frequency')
+plt.grid(axis='y', alpha=0.7)
+plt.show()
+plt.savefig("output/Salary_Distribution_Remote.svg")
+
+
+
+
+```
+
+
+## Histogram 2
+
+```{python}
+import matplotlib.pyplot as plt
+
+remote_salaries = df_pd[df_pd['REMOTE_GROUP'] == 'Hybrid']['Average_Salary']
+
+plt.figure(figsize=(6, 4))
+plt.hist(remote_salaries, bins=15, color='#80b131ff', alpha=0.7, edgecolor='black')
+plt.title(' Hybrid Salary Distribution')
+plt.xlabel('Average Salary (USD)')
+plt.ylabel('Frequency')
+plt.grid(axis='y', alpha=0.7)
+plt.show()
+plt.savefig("output/Salary_Distribution_Hybrid.svg")
+
+
+
+
+```
+
+## Histogram 3
+
+```{python}
+import matplotlib.pyplot as plt
+
+remote_salaries = df_pd[df_pd['REMOTE_GROUP'] == 'Onsite']['Average_Salary']
+
+plt.figure(figsize=(6, 4))
+plt.hist(remote_salaries, bins=15, color='#e21b1eff', alpha=0.7, edgecolor='black')
+plt.title(' Onsite Salary Distribution')
+plt.xlabel('Average Salary (USD)')
+plt.ylabel('Frequency')
+plt.grid(axis='y', alpha=0.7)
+plt.show()
+plt.savefig("output/Salary_Distribution_Onsite.svg")
 
 
 
