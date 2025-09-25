@@ -422,7 +422,7 @@ fig1.update_layout(
   xaxis_title="Years of Experience",
   yaxis_title="Average Salary (USD)",
   legend_title="Education Group",
-  hoverlabel=dict(bgcolor="white", font_size=13, font_family="Arial"),
+  hoverlabel=dict(bgcolor="white", font_size=13, font_family="Roboto"),
   margin=dict(t=70,b=60, l=60, r=60),
   xaxis=dict(
     gridcolor="lightgrey",
@@ -432,7 +432,7 @@ fig1.update_layout(
   yaxis=dict(gridcolor="lightgrey")
 )
 fig1.show()
-fig1.write_html("outputq_1a_Experience_vs_Salary_by_Education_Level_Bachelors.html")
+fig1.write_html("output/q_1a_Experience_vs_Salary_by_Education_Level_Bachelors.html")
 fig1.write_image("output/q_1a_Experience_vs_Salary_by_Education_Level_Bachelors.svg", width=1100, height=900, scale=1)
 
 ```
@@ -466,7 +466,7 @@ fig2.update_layout(
   xaxis_title="Years of Experience",
   yaxis_title="Average Salary (USD)",
   legend_title="Education Group",
-  hoverlabel=dict(bgcolor="white", font_size=13, font_family="Arial"),
+  hoverlabel=dict(bgcolor="white", font_size=13, font_family="Roboto"),
   margin=dict(t=70,b=60, l=60, r=60),
   xaxis=dict(
     gridcolor="lightgrey",
@@ -476,7 +476,7 @@ fig2.update_layout(
   yaxis=dict(gridcolor="lightgrey")
 )
 fig2.show()
-fig2.write_html("outputq_1a_Experience_vs_Salary_by_Education_Level_Masters.html")
+fig2.write_html("output/q_1a_Experience_vs_Salary_by_Education_Level_Masters.html")
 fig2.write_image("output/q_1a_Experience_vs_Salary_by_Education_Level_Masters.svg", width=1100, height=900, scale=1)
 
 ```
@@ -486,6 +486,8 @@ fig2.write_image("output/q_1a_Experience_vs_Salary_by_Education_Level_Masters.sv
 
 
 ## Histogram 1
+
+The histogram appears right-skewed, with most people earning a salary of around 100k. The density peak is also around the same amount, further solidifying that many people with a Bachelor's or below earn around this amount. It is very rare for a person to earn above 150k, but those who do most likely have many years of experience.
 ```{python}
 import seaborn as sns
 import matplotlib.pyplot as plt
@@ -513,6 +515,9 @@ plt.savefig("output/Bachelors_or_Lower_Histogram.svg", bbox_inches='tight')
 
 
 ## Histogram 2
+
+The histogram generated creates a bimodal distribution, with most people earning around 110k. There is a significant increase at around 190k, highlighting that some people earn that much, demonstrating the benefits of having a higher education. Comparing this with the previous histogram, the salary distribution is larger for this one. Higher salaries are more abundant for people with a Master's or a PhD.
+
 ```{python}
 import seaborn as sns
 import matplotlib.pyplot as plt
@@ -571,6 +576,8 @@ df_pd['MAX_YEARS_EXPERIENCE_JITTER'] = (
 
 ## Scatter Plot 1
 
+For individuals with remote work experience, the average salary increases with each additional year of experience. People with 1 to 3 years of experience earn an average salary ranging from 50k to just under 150k. After that, there is a large amount of variability for the average salary for people who earn a greater wage. Some people with fewer years of experience can earn a salary above 100k, but most people with more than 3 years are expected to earn above that amount.
+
 ```{python}
 remote_df = df_pd[df_pd['REMOTE_GROUP'] == 'Remote']
 fig1 = px.scatter(
@@ -595,7 +602,7 @@ fig1.update_layout(
   xaxis_title="Years of Experience",
   yaxis_title="Average Salary (USD)",
   legend_title="Remote Work Type",
-  hoverlabel=dict(bgcolor="white", font_size=13, font_family="Arial"),
+  hoverlabel=dict(bgcolor="white", font_size=13, font_family="Garamond"),
   margin=dict(t=70,b=60, l=60, r=60),
   xaxis=dict(
     gridcolor="lightgrey",
@@ -615,6 +622,8 @@ fig1.write_image("output/Experience_vs_Salary_by_Remote_Work_Type.svg", width=11
 ```
 
 ## Scatter Plot 2
+
+Compared to remote workers, people with a hybrid job do not see an increase in their average salary with each year of experience. Most salaries cluster around 100k, despite a higher experience level. There is no upward trend present in the graph. There are also a large number of people who earn less than 100k, which was not present among those with remote jobs. There appears to be a form of salary cap in this type of work.
 
 ```{python}
 hybrid_df = df_pd[df_pd['REMOTE_GROUP'] == 'Hybrid']
@@ -640,7 +649,7 @@ fig2.update_layout(
   xaxis_title="Years of Experience",
   yaxis_title="Average Salary (USD)",
   legend_title="Remote Work Type",
-  hoverlabel=dict(bgcolor="white", font_size=13, font_family="Arial"),
+  hoverlabel=dict(bgcolor="white", font_size=13, font_family="Garamond"),
   margin=dict(t=70,b=60, l=60, r=60),
   xaxis=dict(
     gridcolor="lightgrey",
@@ -660,6 +669,8 @@ fig2.write_image("output/Experience_vs_Salary_by_Remote_Work_Type_Hybrid.svg", w
 ```
 
 ## Scatter Plot 3
+
+From the start, there appears to be a broader range for average salary compared to the other two types of work. People with an on-site job earn between 50k and around 750k. There is an upward trend in salaries with each additional year of experience, with most clustering around 50k to 200k. The higher salaries typically occur after 4 years of experience; in one case, a large number of people earned over 300k with 7 years of experience. On-site jobs offer a wide range of salary benefits that the other two job types can not match.
 
 ```{python}
 onsite_df = df_pd[df_pd['REMOTE_GROUP'] == 'Onsite']
@@ -685,7 +696,7 @@ fig3.update_layout(
   xaxis_title="Years of Experience",
   yaxis_title="Average Salary (USD)",
   legend_title="Remote Work Type",
-  hoverlabel=dict(bgcolor="white", font_size=13, font_family="Arial"),
+  hoverlabel=dict(bgcolor="white", font_size=13, font_family="Georgia"),
   margin=dict(t=70,b=60, l=60, r=60),
   xaxis=dict(
     gridcolor="lightgrey",
@@ -706,6 +717,8 @@ fig3.write_image("output/Experience_vs_Salary_by_Remote_Work_Type_Onsite.svg", w
 
 ## Histogram 1
 
+The histogram for remote jobs is bell-shaped with signs of being right-skewed. Most jobs pay around 100k a week on average, as previously stated. There is a steady decrease in the average salary after 100k, indicating that very few people who have remote jobs earn higher salaries. On the other hand, there are very few people who earn wages on the lower end of the histogram. The typical salary range for people in a remote setting is 100k.
+
 ```{python}
 import matplotlib.pyplot as plt
 
@@ -718,7 +731,7 @@ plt.xlabel('Average Salary (USD)')
 plt.ylabel('Frequency')
 plt.grid(axis='y', alpha=0.7)
 plt.show()
-plt.savefig("output/Salary_Distribution_Remote.svg")
+plt.savefig("output/Salary_Distribution_Remote.png")
 
 
 
@@ -727,6 +740,8 @@ plt.savefig("output/Salary_Distribution_Remote.svg")
 
 
 ## Histogram 2
+
+The hybrid salary distribution is right-skewed, indicating that most people earn an average salary of 100k, with a frequency of less than 200. Remote jobs had a frequency of over 800 for people making 100k. Very few salaries are below 80k, but the same can be said for jobs earning above 150k. The histograms support the idea that remote jobs seemingly pay more than hybrid ones.
 
 ```{python}
 import matplotlib.pyplot as plt
@@ -740,7 +755,7 @@ plt.xlabel('Average Salary (USD)')
 plt.ylabel('Frequency')
 plt.grid(axis='y', alpha=0.7)
 plt.show()
-plt.savefig("output/Salary_Distribution_Hybrid.svg")
+plt.savefig("output/Salary_Distribution_Hybrid.png")
 
 
 
@@ -748,6 +763,8 @@ plt.savefig("output/Salary_Distribution_Hybrid.svg")
 ```
 
 ## Histogram 3
+
+Looking at this histogram for onsite jobs, average salaries frequently range around 100k, with a frequency of over 4000. There is a larger bar after 100k, showing that a large number of people earn closer to 200k. The onsite salary distribution has a much higher frequency than the remote and hybrid ones, and is also more concentrated. The histogram supports the idea that an onsite job will provide a more consistent and beneficial average salary.
 
 ```{python}
 import matplotlib.pyplot as plt
@@ -761,7 +778,7 @@ plt.xlabel('Average Salary (USD)')
 plt.ylabel('Frequency')
 plt.grid(axis='y', alpha=0.7)
 plt.show()
-plt.savefig("output/Salary_Distribution_Onsite.svg")
+plt.savefig("output/Salary_Distribution_Onsite.png")
 
 
 
